@@ -8,7 +8,6 @@ rpicam_app_src += files([
     'dma_heaps.cpp',
     'rpicam_app.cpp',
     'options.cpp',
-    'post_processor.cpp',
 ])
 
 core_headers = files([
@@ -21,7 +20,6 @@ core_headers = files([
     'logging.hpp',
     'metadata.hpp',
     'options.hpp',
-    'post_processor.hpp',
     'still_options.hpp',
     'stream_info.hpp',
     'version.hpp',

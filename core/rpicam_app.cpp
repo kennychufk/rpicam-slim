@@ -75,7 +75,7 @@ static void set_pipeline_configuration(Platform platform)
 }
 
 RPiCamApp::RPiCamApp(std::unique_ptr<Options> opts)
-	: options_(std::move(opts)), controls_(controls::controls), post_processor_(this)
+	: options_(std::move(opts)), controls_(controls::controls)
 {
 	if (!options_)
 		options_ = std::make_unique<Options>();
@@ -158,15 +158,6 @@ void RPiCamApp::OpenCamera()
 	camera_acquired_ = true;
 
 	LOG(2, "Acquired camera " << cam_id);
-
-	if (!options_->post_process_file.empty())
-	{
-		post_processor_.LoadModules(options_->post_process_libs);
-		post_processor_.Read(options_->post_process_file);
-	}
-	// The queue takes over ownership from the post-processor.
-	post_processor_.SetCallback(
-		[this](CompletedRequestPtr &r) { this->msg_queue_.Post(Msg(MsgType::RequestComplete, std::move(r))); });
 
 	// We're going to make a list of all the available sensor modes, but we only populate
 	// the framerate field if the user has requested a framerate (as this requires us actually
@@ -354,8 +345,6 @@ void RPiCamApp::ConfigureViewfinder()
 
 	configuration_->orientation = libcamera::Orientation::Rotate0 * options_->transform;
 
-	post_processor_.AdjustConfig("viewfinder", &configuration_->at(0));
-
 	configureDenoise(options_->denoise == "auto" ? "cdn_off" : options_->denoise);
 	setupCapture();
 
@@ -364,8 +353,6 @@ void RPiCamApp::ConfigureViewfinder()
 		streams_["lores"] = configuration_->at(lores_stream_num).stream();
 	if (!options_->no_raw)
 		streams_["raw"] = configuration_->at(raw_stream_num).stream();
-
-	post_processor_.Configure();
 
 	LOG(2, "Viewfinder setup complete");
 }
@@ -400,8 +387,6 @@ void RPiCamApp::ConfigureZsl(unsigned int still_flags)
 		configuration_->at(0).size.height = options_->height;
 	configuration_->at(0).colorSpace = libcamera::ColorSpace::Sycc;
 	configuration_->orientation = libcamera::Orientation::Rotate0 * options_->transform;
-
-	post_processor_.AdjustConfig("still", &configuration_->at(0));
 
 	if (!options_->no_raw)
 	{
@@ -450,8 +435,6 @@ void RPiCamApp::ConfigureZsl(unsigned int still_flags)
 
 	configuration_->orientation = libcamera::Orientation::Rotate0 * options_->transform;
 
-	post_processor_.AdjustConfig("viewfinder", &configuration_->at(1));
-
 	configureDenoise(options_->denoise == "auto" ? "cdn_hq" : options_->denoise);
 	setupCapture();
 
@@ -459,8 +442,6 @@ void RPiCamApp::ConfigureZsl(unsigned int still_flags)
 	streams_["viewfinder"] = configuration_->at(1).stream();
 	if (!options_->no_raw)
 		streams_["raw"] = configuration_->at(2).stream();
-
-	post_processor_.Configure();
 
 	LOG(2, "ZSL setup complete");
 }
@@ -503,8 +484,6 @@ void RPiCamApp::ConfigureStill(unsigned int flags)
 	configuration_->at(0).colorSpace = libcamera::ColorSpace::Sycc;
 	configuration_->orientation = libcamera::Orientation::Rotate0 * options_->transform;
 
-	post_processor_.AdjustConfig("still", &configuration_->at(0));
-
 	if (!options_->no_raw)
 	{
 		options_->mode.update(configuration_->at(0).size, options_->framerate);
@@ -524,8 +503,6 @@ void RPiCamApp::ConfigureStill(unsigned int flags)
 	streams_["still"] = configuration_->at(0).stream();
 	if (!options_->no_raw)
 		streams_["raw"] = configuration_->at(1).stream();
-
-	post_processor_.Configure();
 
 	LOG(2, "Still capture setup complete");
 }
@@ -563,8 +540,6 @@ void RPiCamApp::ConfigureVideo(unsigned int flags)
 		cfg.colorSpace = libcamera::ColorSpace::Smpte170m;
 	configuration_->orientation = libcamera::Orientation::Rotate0 * options_->transform;
 
-	post_processor_.AdjustConfig("video", &configuration_->at(0));
-
 	if (!options_->no_raw)
 	{
 		options_->mode.update(configuration_->at(0).size, options_->framerate);
@@ -600,16 +575,12 @@ void RPiCamApp::ConfigureVideo(unsigned int flags)
 	if (have_lores_stream)
 		streams_["lores"] = configuration_->at(lores_index).stream();
 
-	post_processor_.Configure();
-
 	LOG(2, "Video setup complete");
 }
 
 void RPiCamApp::Teardown()
 {
 	stopPreview();
-
-	post_processor_.Teardown();
 
 	if (!options_->help)
 		LOG(2, "Tearing down requests, buffers and configuration");
@@ -783,8 +754,6 @@ void RPiCamApp::StartCamera()
 	camera_started_ = true;
 	last_timestamp_ = 0;
 
-	post_processor_.Start();
-
 	camera_->requestCompleted.connect(this, &RPiCamApp::requestComplete);
 
 	for (std::unique_ptr<Request> &request : requests_)
@@ -805,8 +774,6 @@ void RPiCamApp::StopCamera()
 		{
 			if (camera_->stop())
 				throw std::runtime_error("failed to stop camera");
-
-			post_processor_.Stop();
 
 			camera_started_ = false;
 		}
@@ -1116,7 +1083,7 @@ void RPiCamApp::requestComplete(Request *request)
 		payload->framerate = 1e9 / (timestamp - last_timestamp_);
 	last_timestamp_ = timestamp;
 
-	post_processor_.Process(payload); // post-processor can re-use our shared_ptr
+  msg_queue_.Post(Msg(MsgType::RequestComplete, std::move(payload)));
 }
 
 void RPiCamApp::previewDoneCallback(int fd)

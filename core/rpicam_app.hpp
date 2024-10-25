@@ -33,7 +33,6 @@
 #include "core/buffer_sync.hpp"
 #include "core/completed_request.hpp"
 #include "core/dma_heaps.hpp"
-#include "core/post_processor.hpp"
 #include "core/stream_info.hpp"
 
 struct Options;
@@ -282,6 +281,5 @@ private:
 	// Other:
 	uint64_t last_timestamp_;
 	uint64_t sequence_ = 0;
-	PostProcessor post_processor_;
 	libcamera::PixelFormat lores_format_ = libcamera::formats::YUV420;
 };

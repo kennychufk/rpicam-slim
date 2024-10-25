@@ -392,6 +392,7 @@ void LibAvEncoder::EncodeBuffer(int fd, size_t size, void *mem, StreamInfo const
 	if (!video_start_ts_)
 		video_start_ts_ = timestamp_us;
 
+	using namespace std::chrono_literals;
 	frame->format = codec_ctx_[Video]->pix_fmt;
 	frame->width = info.width;
 	frame->height = info.height;
@@ -723,6 +724,7 @@ void LibAvEncoder::audioThread()
 			AVRational num = { 1, out_frame->sample_rate };
 			int64_t ts = av_rescale_q(audio_samples_, num, codec_ctx_[AudioOut]->time_base);
 
+			using namespace std::chrono_literals;
 			out_frame->pts = ts +
 				(options_->av_sync.value > 0us ? options_->av_sync.get<std::chrono::microseconds>() : 0);
 			audio_samples_ += codec_ctx_[AudioOut]->frame_size;
