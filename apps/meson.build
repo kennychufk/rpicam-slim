@@ -22,6 +22,12 @@ rpicam_raw = executable('rpicam-raw', files('rpicam_raw.cpp'),
                         link_with : rpicam_app,
                         install : true)
 
+rpicam_chessboard = executable('rpicam-chessboard', files('rpicam_chessboard.cpp'),
+                        include_directories : include_directories('..'),
+                        dependencies: [libcamera_dep, boost_dep],
+                        link_with : rpicam_app,
+                        install : true)
+
 # Install symlinks to the old app names for legacy purposes.
 install_symlink('libcamera-still',
                 install_dir: get_option('bindir'),
@@ -38,4 +44,8 @@ install_symlink('libcamera-hello',
 install_symlink('libcamera-raw',
                 install_dir: get_option('bindir'),
                 pointing_to: 'rpicam-raw')
+
+install_symlink('libcamera-chessboard',
+                install_dir: get_option('bindir'),
+                pointing_to: 'rpicam-chessboard')
 
