@@ -229,8 +229,6 @@ Options::Options()
 			"Set the preview window dimensions, given as x,y,width,height e.g. 0,0,640,480")
 		("fullscreen,f", value<bool>(&fullscreen)->default_value(false)->implicit_value(true),
 			"Use a fullscreen preview window")
-		("qt-preview", value<bool>(&qt_preview)->default_value(false)->implicit_value(true),
-			"Use Qt-based preview window (WARNING: causes heavy CPU load, fullscreen not supported)")
 		("hflip", value<bool>(&hflip_)->default_value(false)->implicit_value(true), "Request a horizontal flip transform")
 		("vflip", value<bool>(&vflip_)->default_value(false)->implicit_value(true), "Request a vertical flip transform")
 		("rotation", value<int>(&rotation_)->default_value(0), "Request an image rotation, 0 or 180")
@@ -671,7 +669,6 @@ void Options::Print() const
 	else
 		std::cerr << "    preview: " << preview_x << "," << preview_y << "," << preview_width << ","
 					<< preview_height << std::endl;
-	std::cerr << "    qt-preview: " << qt_preview << std::endl;
 	std::cerr << "    transform: " << transformToString(transform) << std::endl;
 	if (roi_width == 0 || roi_height == 0)
 		std::cerr << "    roi: all" << std::endl;

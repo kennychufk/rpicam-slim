@@ -148,7 +148,6 @@ struct Options
 	unsigned int viewfinder_width;
 	unsigned int viewfinder_height;
 	std::string tuning_file;
-	bool qt_preview;
 	unsigned int lores_width;
 	unsigned int lores_height;
 	bool lores_par;

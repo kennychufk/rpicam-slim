@@ -12,12 +12,6 @@ static constexpr int egl = 1;
 static constexpr int egl = 0;
 #endif
 
-#if QT_PRESENT
-static constexpr int qt = 1;
-#else
-static constexpr int qt = 0;
-#endif
-
 #if LIBDRM_PRESENT
 static constexpr int drm = 1;
 #else
@@ -33,7 +27,6 @@ static int libav = 0;
 static const std::string version {"@VER@"};
 
 static const std::string caps {"egl:" + std::to_string(egl) +
-							   " qt:" + std::to_string(qt) +
 							   " drm:" + std::to_string(drm) +
 							   " libav:" + std::to_string(libav)};
 
