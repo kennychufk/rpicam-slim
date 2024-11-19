@@ -12,26 +12,6 @@ encoder_headers = files([
     'null_encoder.hpp',
 ])
 
-libav_dep_names = ['libavcodec', 'libavdevice', 'libavformat', 'libavutil', 'libswresample']
-libav_deps = []
-
-enable_libav = true
-foreach name : libav_dep_names
-    dep = dependency(name, required : get_option('enable_libav'))
-    if not dep.found()
-        enable_libav = false
-        break
-    endif
-    libav_deps += dep
-endforeach
-
-if enable_libav
-        rpicam_app_src += files('libav_encoder.cpp')
-        encoder_headers += files('libav_encoder.hpp')
-        rpicam_app_dep += libav_deps
-        cpp_arguments += '-DLIBAV_PRESENT=1'
-endif
-
 # OpenCV based postprocessing stages.
 enable_opencv = false
 opencv_dep = dependency('opencv4', required : get_option('enable_opencv'))

@@ -1,8 +1,3 @@
-option('enable_libav',
-        type : 'feature',
-        value : 'auto',
-        description : 'Enable the libav encoder for video/audio capture')
-
 option('enable_drm',
         type : 'feature',
         value : 'auto',

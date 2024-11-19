@@ -91,7 +91,6 @@ install_symlink('libcamera_app.so',
 subdir('apps')
 
 summary({
-            'libav encoder' : enable_libav,
             'drm preview' : enable_drm,
             'egl preview' : enable_egl,
             'OpenCV postprocessing' : enable_opencv,
