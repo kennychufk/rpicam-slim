@@ -1,8 +1,3 @@
-option('enable_drm',
-        type : 'feature',
-        value : 'auto',
-        description : 'Enable DRM preview window support')
-
 option('enable_egl',
         type : 'feature',
         value : 'auto',

@@ -12,23 +12,9 @@ static constexpr int egl = 1;
 static constexpr int egl = 0;
 #endif
 
-#if LIBDRM_PRESENT
-static constexpr int drm = 1;
-#else
-static constexpr int drm = 0;
-#endif
-
-#if LIBAV_PRESENT
-static int libav = 1;
-#else
-static int libav = 0;
-#endif
-
 static const std::string version {"@VER@"};
 
-static const std::string caps {"egl:" + std::to_string(egl) +
-							   " drm:" + std::to_string(drm) +
-							   " libav:" + std::to_string(libav)};
+static const std::string caps {"egl:" + std::to_string(egl)};
 
 const std::string &RPiCamAppsVersion()
 {

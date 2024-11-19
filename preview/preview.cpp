@@ -11,7 +11,6 @@
 
 Preview *make_null_preview(Options const *options);
 Preview *make_egl_preview(Options const *options);
-Preview *make_drm_preview(Options const *options);
 
 Preview *make_preview(Options const *options)
 {
@@ -32,22 +31,8 @@ Preview *make_preview(Options const *options)
 		}
 		catch (std::exception const &e)
 		{
-			try
-			{
-#if LIBDRM_PRESENT
-				Preview *p = make_drm_preview(options);
-				if (p)
-					LOG(1, "Made DRM preview window");
-				return p;
-#else
-				throw std::runtime_error("drm libraries unavailable.");
-#endif
-			}
-			catch (std::exception const &e)
-			{
-				LOG(1, "Preview window unavailable");
-				return make_null_preview(options);
-			}
+			LOG(1, "Preview window unavailable");
+			return make_null_preview(options);
 		}
 	}
 
